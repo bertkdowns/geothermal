@@ -2,6 +2,10 @@ import pickle
 import pandas
 import os
 import torch
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from model import MLP, train_model, empirical_loss, test_model
 
 file_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(file_dir)
@@ -18,9 +22,6 @@ print(data.columns)
 
 # get the first 1000 rows of the dataframe
 df = pandas.DataFrame(data)
-
-
-head = df.head(1000)
 
 # AH - Air Humidity (0-100%) AKA Relative Humidity
 # AT - Air Temperature (°C)
@@ -43,31 +44,58 @@ head = df.head(1000)
 # VP - vaporizer pressure
  
 
+# do a pairplot of the input features
+
+
+
+head = df[1000:2000]
+sns.pairplot(head[['BCOCF', 'PHMFIT', 'SIF', 'PHBOT']], hue='PHBOT', palette='viridis')
+plt.show(block=True)
+
+# Do a line graph of each feature over time
+plt.figure(figsize=(16, 10))
+for col in head.columns:
+    plt.plot(head.index, head[col], label=col)
+plt.xlabel('Index')
+plt.ylabel('Value')
+plt.title('Features over time')
+plt.ylim(0, 300)
+plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+plt.tight_layout()
+plt.show(block=True)
+
+
 # surrogate model the preheater
 # Inputs: BCOCF, PHMFIT, SIF, 
 # Output: PHBOT
 
-X = head[['BCOCF', 'PHMFIT', 'SIF']]
-y = head['PHBOT']
+
+
+X = df[['BCOCF', 'PHMFIT', 'SIF']]
+y = df['PHBOT']
+
+X_train = X[1000:2000]
+y_train = y[1000:2000]
+X_test = X[2000:3000]
+y_test = y[2000:3000]
 
 # convert to torch tensors
-X_tensor = torch.tensor(X.values, dtype=torch.float32)
-y_tensor = torch.tensor(y.values, dtype=torch.float32)
+X_tensor = torch.tensor(X_train.values, dtype=torch.float32)
+y_tensor = torch.tensor(y_train.values, dtype=torch.float32)
 
-from model import MLP, train_model, empirical_loss, test_model
 
-m = MLP(input_dim=X_tensor.shape[1], hidden_dim=32, output_dim=1)
+m = MLP(input_dim=X_tensor.shape[1], hidden_dim=64, output_dim=1)
 
-train_model(m, X_tensor, y_tensor, epochs=1000000, lr=1e-3)
+train_model(m, X_tensor, y_tensor, epochs=10000, lr=1e-2)
 
 predictions = test_model(m, X_tensor, y_tensor)
 
 
 # plot with BCOCF on x-axis and PHBOT on y-axis
-import matplotlib.pyplot as plt
-plt.scatter(X_tensor[:, 2].numpy(), y_tensor.numpy(), label='True PHBOT', alpha=0.5)
-plt.scatter(X_tensor[:, 2].numpy(), predictions.numpy(), label='Predicted PHBOT', alpha=0.5)
+plt.scatter(X_tensor[:, 0].numpy(), y_tensor.numpy(), label='True PHBOT', alpha=0.5)
+plt.scatter(X_tensor[:, 0].numpy(), predictions.numpy(), label='Predicted PHBOT', alpha=0.5)
 plt.xlabel('BCOCF')
 plt.ylabel('PHBOT')
 plt.legend()
 plt.show(block=True)
+

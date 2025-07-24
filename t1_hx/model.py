@@ -3,6 +3,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+# TODO:
+# instead of this class method, we could also use Torch.nn.Sequential to define the model.
+
 
 class MLP(nn.Module):
     def __init__(self, input_dim=4, hidden_dim=32, output_dim=2):
@@ -15,20 +18,22 @@ class MLP(nn.Module):
         self.linear1 = nn.Linear(input_dim, hidden_dim)
         # self.bn1 = nn.BatchNorm1d(hidden_dim)
         # self.skip1 = nn.Linear(input_dim, hidden_dim, bias=False)
-        
+        # Layer 2
+        self.linear2 = nn.Linear(hidden_dim, hidden_dim)
         # Output layer
         self.output = nn.Linear(hidden_dim, output_dim)  # Will predict both temperatures
 
-        # Xavier initialisation
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                nn.init.xavier_uniform_(m.weight)
-                if m.bias is not None:
-                    nn.init.zeros_(m.bias)
+        # # Xavier initialisation
+        # for m in self.modules():
+        #     if isinstance(m, nn.Linear):
+        #         nn.init.xavier_uniform_(m.weight)
+        #         if m.bias is not None:
+        #             nn.init.zeros_(m.bias)
 
     def forward(self, x):
         h1 = torch.relu(self.linear1(x))
-        y = self.output(h1)
+        h2 = torch.relu(self.linear2(h1))
+        y = self.output(h2)
         return y
 
 def empirical_loss(pred, target):
