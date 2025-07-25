@@ -80,6 +80,10 @@ from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 X = pandas.DataFrame(X_scaled, columns=X.columns)
+y = y.values.reshape(-1, 1)
+y_scaler = StandardScaler()
+y_scaled = y_scaler.fit_transform(y)
+y = pandas.Series(y_scaled.flatten())
 
 X_train = X[1000:2000]
 y_train = y[1000:2000]
@@ -91,7 +95,7 @@ X_tensor = torch.tensor(X_train.values, dtype=torch.float32)
 y_tensor = torch.tensor(y_train.values, dtype=torch.float32)
 
 
-m = MLP(input_dim=X_tensor.shape[1], hidden_dim=32, output_dim=1)
+m = MLP(input_dim=X_tensor.shape[1], hidden_dim=100, output_dim=1)
 
 train_model(m, X_tensor, y_tensor, epochs=10000, lr=1e-3)
 
