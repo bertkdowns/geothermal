@@ -49,20 +49,20 @@ df = pandas.DataFrame(data)
 
 
 head = df[1000:2000]
-sns.pairplot(head[['BCOCF', 'PHMFIT', 'SIF', 'PHBOT']], hue='PHBOT', palette='viridis')
-plt.show(block=True)
+# sns.pairplot(head[['BCOCF', 'PHMFIT', 'SIF','SIT', 'PHBOT']], hue='PHBOT', palette='viridis')
+# plt.show(block=True)
 
-# Do a line graph of each feature over time
-plt.figure(figsize=(16, 10))
-for col in head.columns:
-    plt.plot(head.index, head[col], label=col)
-plt.xlabel('Index')
-plt.ylabel('Value')
-plt.title('Features over time')
-plt.ylim(0, 300)
-plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
-plt.tight_layout()
-plt.show(block=True)
+# # Do a line graph of each feature over time
+# plt.figure(figsize=(16, 10))
+# for col in head.columns:
+#     plt.plot(head.index, head[col], label=col)
+# plt.xlabel('Index')
+# plt.ylabel('Value')
+# plt.title('Features over time')
+# plt.ylim(0, 300)
+# plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+# plt.tight_layout()
+# plt.show(block=True)
 
 
 # surrogate model the preheater
@@ -71,8 +71,15 @@ plt.show(block=True)
 
 
 
-X = df[['BCOCF', 'PHMFIT', 'SIF']]
-y = df['PHBOT']
+X = df[['BCOCF', 'PHMFIT', 'SIF', 'SIT']][0:3000]
+y = df['PHBOT'][0:3000]
+
+
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+X = pandas.DataFrame(X_scaled, columns=X.columns)
 
 X_train = X[1000:2000]
 y_train = y[1000:2000]
@@ -84,16 +91,16 @@ X_tensor = torch.tensor(X_train.values, dtype=torch.float32)
 y_tensor = torch.tensor(y_train.values, dtype=torch.float32)
 
 
-m = MLP(input_dim=X_tensor.shape[1], hidden_dim=64, output_dim=1)
+m = MLP(input_dim=X_tensor.shape[1], hidden_dim=32, output_dim=1)
 
-train_model(m, X_tensor, y_tensor, epochs=10000, lr=1e-2)
+train_model(m, X_tensor, y_tensor, epochs=10000, lr=1e-3)
 
 predictions = test_model(m, X_tensor, y_tensor)
 
 
 # plot with BCOCF on x-axis and PHBOT on y-axis
-plt.scatter(X_tensor[:, 0].numpy(), y_tensor.numpy(), label='True PHBOT', alpha=0.5)
-plt.scatter(X_tensor[:, 0].numpy(), predictions.numpy(), label='Predicted PHBOT', alpha=0.5)
+plt.scatter(X_tensor[:, 1].numpy(), y_tensor.numpy(), label='True PHBOT', alpha=0.5)
+plt.scatter(X_tensor[:, 1].numpy(), predictions.numpy(), label='Predicted PHBOT', alpha=0.5)
 plt.xlabel('BCOCF')
 plt.ylabel('PHBOT')
 plt.legend()

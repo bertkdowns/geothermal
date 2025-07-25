@@ -7,14 +7,16 @@ import torch.optim as optim
 # instead of this class method, we could also use Torch.nn.Sequential to define the model.
 
 
+
 class MLP(nn.Module):
-    def __init__(self, input_dim=4, hidden_dim=32, output_dim=2):
+    def __init__(self, input_dim=4, hidden_dim=256, output_dim=2):
         '''
         Very simple MLP with one layer.
         '''
         super(MLP, self).__init__()
 
         # Layer 1
+        self.input_scaler = nn.BatchNorm1d(input_dim, affine=False)
         self.linear1 = nn.Linear(input_dim, hidden_dim)
         # self.bn1 = nn.BatchNorm1d(hidden_dim)
         # self.skip1 = nn.Linear(input_dim, hidden_dim, bias=False)
@@ -31,8 +33,8 @@ class MLP(nn.Module):
         #             nn.init.zeros_(m.bias)
 
     def forward(self, x):
-        h1 = torch.relu(self.linear1(x))
-        h2 = torch.relu(self.linear2(h1))
+        h1 = torch.relu(self.linear1(self.input_scaler(x)))
+        h2 = self.linear2(h1)
         y = self.output(h2)
         return y
 
