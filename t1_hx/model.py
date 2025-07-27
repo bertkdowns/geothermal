@@ -42,13 +42,14 @@ class MLP(nn.Module):
 empirical_loss =  nn.MSELoss()
 
 
-def train_model(model, train_data, train_targets, epochs=1000, 
+def train_model(model, train_data, train_targets, epochs=10000, 
                 lr=1e-4):
     optimizer = optim.Adam(model.parameters(), lr=lr)
     
-    model.train() # Set model to training mode. 
-    batch_size = 24
+    batch_size = 50
     for epoch in range(epochs):
+        model.train() # Set model to training mode. 
+
         for i in range(0, len(train_data), batch_size):
             train_batch = train_data[i:i+batch_size]
             train_targets_batch = train_targets[i:i+batch_size]
