@@ -4,7 +4,7 @@ import os
 import torch
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import torch.nn as nn
 from model import MLP, train_model, empirical_loss, test_model
 
 file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -69,21 +69,19 @@ head = df[1000:2000]
 # Inputs: BCOCF, PHMFIT, SIF, 
 # Output: PHBOT
 
-
-
 X = df[['BCOCF', 'PHMFIT', 'SIF', 'SIT']][0:3000]
 y = df['PHBOT'][0:3000]
 
 
-from sklearn.preprocessing import StandardScaler
+# from sklearn.preprocessing import StandardScaler
 
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-X = pandas.DataFrame(X_scaled, columns=X.columns)
-y = y.values.reshape(-1, 1)
-y_scaler = StandardScaler()
-y_scaled = y_scaler.fit_transform(y)
-y = pandas.Series(y_scaled.flatten())
+# scaler = StandardScaler()
+# X_scaled = scaler.fit_transform(X)
+# X = pandas.DataFrame(X_scaled, columns=X.columns)
+# y = y.values.reshape(-1, 1)
+# y_scaler = StandardScaler()
+# y_scaled = y_scaler.fit_transform(y)
+# y = pandas.Series(y_scaled.flatten())
 
 X_train = X[1000:2000]
 y_train = y[1000:2000]
@@ -95,11 +93,17 @@ X_tensor = torch.tensor(X_train.values, dtype=torch.float32)
 y_tensor = torch.tensor(y_train.values, dtype=torch.float32)
 
 
-m = MLP(input_dim=X_tensor.shape[1], hidden_dim=100, output_dim=1)
+# Create a MLP model
 
-train_model(m, X_tensor, y_tensor, epochs=10000, lr=1e-3)
+MyMLP = nn.Sequential(
+    nn.Linear(X_tensor.shape[1], 100),
+    nn.ReLU(),
+    nn.Linear(100, 1)
+)
 
-predictions = test_model(m, X_tensor, y_tensor)
+train_model(MyMLP, X_tensor, y_tensor, epochs=200, lr=1e-3)
+
+predictions = test_model(MyMLP, X_tensor, y_tensor)
 
 
 # plot with BCOCF on x-axis and PHBOT on y-axis

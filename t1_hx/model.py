@@ -38,33 +38,31 @@ class MLP(nn.Module):
         y = self.output(h2)
         return y
 
-def empirical_loss(pred, target):
-    return nn.MSELoss()(pred, target)
+
+empirical_loss =  nn.MSELoss()
 
 
 def train_model(model, train_data, train_targets, epochs=1000, 
-                lr=1e-3):
+                lr=1e-4):
     optimizer = optim.Adam(model.parameters(), lr=lr)
     
-
-    # Fixed weights when not using meta-learning (PI-rMLP case)
-    w = torch.tensor([100.0])
-    
+    model.train() # Set model to training mode. 
+    batch_size = 24
     for epoch in range(epochs):
-        model.train() # Set model to training mode. 
-        optimizer.zero_grad()
-        
-        # Forward pass
-        pred = model(train_data)
-        # Compute losses
-        loss = empirical_loss(pred, train_targets)
-        # Backward pass for model parameters
-        loss.backward()
-        optimizer.step()
+        for i in range(0, len(train_data), batch_size):
+            train_batch = train_data[i:i+batch_size]
+            train_targets_batch = train_targets[i:i+batch_size]
+            optimizer.zero_grad()
+            # Forward pass
+            pred = model(train_batch)
+            # Compute losses
+            loss = empirical_loss(pred, train_targets_batch)
+            # Backward pass for model parameters
+            loss.backward()
+            optimizer.step()
         
         if epoch % 100 == 0 or epoch == epochs - 1:
-            print(f"Epoch {epoch}: Total Loss={loss.item():.6f}, "
-                  f"w={w.item():.6f}")
+            print(f"Epoch {epoch}: Total Loss={loss.item():.6f}`")
 
 def test_model(model, test_data, test_targets):
     model.eval()  # Set model to evaluation mode
