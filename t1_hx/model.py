@@ -53,12 +53,12 @@ def train_model(model, train_data, train_targets, epochs=10000,
         for i in range(0, len(train_data), batch_size):
             train_batch = train_data[i:i+batch_size]
             train_targets_batch = train_targets[i:i+batch_size]
-            optimizer.zero_grad()
             # Forward pass
             pred = model(train_batch)
             # Compute losses
             loss = empirical_loss(pred, train_targets_batch)
             # Backward pass for model parameters
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
         

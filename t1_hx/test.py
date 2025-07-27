@@ -101,7 +101,7 @@ MyMLP = nn.Sequential(
     nn.Linear(100, 1)
 )
 
-train_model(MyMLP, X_tensor, y_tensor, epochs=1000, lr=1e-4)
+train_model(MyMLP, X_tensor, y_tensor, epochs=1000, lr=1e-3)
 
 predictions = test_model(MyMLP, X_tensor, y_tensor)
 
