@@ -1,0 +1,8 @@
+asyncua
+pandas
+pickle
+
+# You can also use opcua-client to view the data served by this server:
+# https://github.com/FreeOpcUa/opcua-client-gui
+# pip install opcua-client
+# opcua-client
