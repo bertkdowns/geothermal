@@ -3,18 +3,18 @@
 # Values are updated every second.
 
 import pickle
-import pandas
-import os
-import torch
-import seaborn as sns
-import matplotlib.pyplot as plt
+#import pandas
+#import os
+#import torch
+#import seaborn as sns
+#import matplotlib.pyplot as plt
 import asyncio
 import logging
 from asyncua import Server, ua
 from asyncua.common.methods import uamethod
 
 
-with open('../reconcile_all.pk1', 'rb') as f:
+with open('./reconcile_all.pk1', 'rb') as f:
     df = pickle.load(f)
 
 
@@ -28,7 +28,16 @@ async def main():
     # setup our server
     server = Server()
     await server.init()
-    server.set_endpoint("opc.tcp://0.0.0.0:4840/freeopcua/server/")
+    # Load cert + key
+    # server.load_certificate("server_cert.der")
+    # server.load_private_key("server_private_key.pem")
+
+    # # Enable encryption
+    # server.set_security_policy([
+    #     ua.SecurityPolicyType.Basic128Rsa15_Sign,
+    #     ua.SecurityPolicyType.Basic128Rsa15_SignAndEncrypt,
+    # ])
+    server.set_endpoint("opc.tcp://0.0.0.0:4841/freeopcua/server/")
 
     # set up our own namespace, not really necessary but should as spec
     uri = "http://examples.freeopcua.github.io"

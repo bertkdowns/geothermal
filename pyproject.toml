@@ -1,0 +1,17 @@
+[project]
+name = "geothermal"
+version = "0.1.0"
+description = "Geothermal project"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+readme = "README.md"
+requires-python = "==3.12.*"
+license = { text = "MIT" }
+
+dependencies = [
+    "opcua",
+    "scikit-learn",
+    "pandas",
+    #"torch", # technically we need torch for some stuff but not everything
+    "asyncua",
+    "opcua-client",
+]
