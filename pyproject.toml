@@ -14,4 +14,9 @@ dependencies = [
     #"torch", # technically we need torch for some stuff but not everything
     "asyncua",
     "opcua-client",
+    "ahuora-compounds",
+    "idaes-pse>=2.10.0",
 ]
+
+[tool.uv.sources]
+ahuora-compounds = { git = "https://github.com/waikato-ahuora-smart-energy-systems/PropertyPackages.git" }
